@@ -420,6 +420,7 @@ async function loadDashboardSummary() {
     // Dynamic Insights list rendering
     elements.dashInsightsList.innerHTML = "";
     if (state.latestLog && data.recommendations.length > 0) {
+      const fragment = document.createDocumentFragment();
       data.recommendations.forEach(rec => {
         const item = document.createElement("div");
         item.className = `recommendation-item priority-${rec.priority}`;
@@ -429,8 +430,9 @@ async function loadDashboardSummary() {
           </div>
           <p>${rec.tip}</p>
         `;
-        elements.dashInsightsList.appendChild(item);
+        fragment.appendChild(item);
       });
+      elements.dashInsightsList.appendChild(fragment);
     } else {
       elements.dashInsightsList.innerHTML = `<p>Complete a Carbon Footprint calculation first to receive custom optimization insights.</p>`;
     }
@@ -439,12 +441,14 @@ async function loadDashboardSummary() {
     elements.dashBadgesSnapshot.innerHTML = "";
     if (state.badges.length > 0) {
       const activeBadges = state.badges.slice(0, 3);
+      const fragment = document.createDocumentFragment();
       activeBadges.forEach(badge => {
         const badgeEl = document.createElement("div");
         badgeEl.className = "nav-streak"; // small pill styled representation
         badgeEl.innerHTML = `🌟 ${badge.split("_").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")}`;
-        elements.dashBadgesSnapshot.appendChild(badgeEl);
+        fragment.appendChild(badgeEl);
       });
+      elements.dashBadgesSnapshot.appendChild(fragment);
     } else {
       elements.dashBadgesSnapshot.innerHTML = `<p>No badges unlocked yet. Complete calculations or log daily actions to earn them.</p>`;
     }
@@ -632,6 +636,7 @@ async function loadTrackerView() {
 
     elements.habitHistoryContainer.innerHTML = "";
     if (actions.length > 0) {
+      const fragment = document.createDocumentFragment();
       actions.forEach(a => {
         const item = document.createElement("div");
         item.className = "action-row";
@@ -652,8 +657,9 @@ async function loadTrackerView() {
             <span style="font-size: 0.75rem; color: var(--success); font-weight: 500;">-${a.emissions_reduced.toFixed(1)} kg CO2</span>
           </div>
         `;
-        elements.habitHistoryContainer.appendChild(item);
+        fragment.appendChild(item);
       });
+      elements.habitHistoryContainer.appendChild(fragment);
     } else {
       elements.habitHistoryContainer.innerHTML = `<p>No habits logged recently. Check off items on the left side to get started!</p>`;
     }

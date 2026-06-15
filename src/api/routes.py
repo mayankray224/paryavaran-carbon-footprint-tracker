@@ -13,7 +13,8 @@ from src.repositories.base import UserRepository, CarbonLogRepository, ActionLog
 from src.services.carbon_calculator import CarbonCalculatorService
 from src.services.gamification import GamificationService
 from src.services.insights import InsightsService
-from src.utils.helpers import verify_password, hash_password, create_access_token, decode_access_token
+from src.services.auth import AuthService
+from src.utils.helpers import decode_access_token
 from src.api.schemas import (
     UserRegister, UserLogin, Token, TokenData,
     CarbonCalculationInput, CarbonCalculationResponse,
@@ -66,29 +67,20 @@ def get_current_user(
 @router.post("/auth/register", response_model=Token, status_code=status.HTTP_201_CREATED)
 def register(user_data: UserRegister, db: Session = Depends(get_db)) -> Dict[str, str]:
     """
-    Registers a new user and returns a access token.
+    Registers a new user and returns an access token.
     """
-    user_repo = UserRepository(db)
-    existing_user = user_repo.get_by_username(user_data.username)
-    if existing_user:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Username is already taken"
-        )
-    
-    try:
-        hashed = hash_password(user_data.password)
-        user = user_repo.create(user_data.username, hashed)
-        
-        # Issue token immediately
-        access_token = create_access_token(data={"sub": user.username, "id": user.id})
-        return {"access_token": access_token, "token_type": "bearer"}
-    except Exception as e:
-        # Prevent internal details leak
+    success, message, data = AuthService.register_user(db, user_data.username, user_data.password)
+    if not success:
+        if message == "Username is already taken":
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=message
+            )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to register user due to an internal server error"
+            detail=message
         )
+    return data
 
 
 @router.post("/auth/login", response_model=Token)
@@ -96,17 +88,14 @@ def login(credentials: UserLogin, db: Session = Depends(get_db)) -> Dict[str, st
     """
     Authenticates user and returns an access token.
     """
-    user_repo = UserRepository(db)
-    user = user_repo.get_by_username(credentials.username)
-    if not user or not verify_password(credentials.password, user.password_hash):
+    success, message, data = AuthService.authenticate_user(db, credentials.username, credentials.password)
+    if not success:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
+            detail=message,
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
-    access_token = create_access_token(data={"sub": user.username, "id": user.id})
-    return {"access_token": access_token, "token_type": "bearer"}
+    return data
 
 
 # --- CARBON CALCULATOR ENDPOINTS ---
@@ -244,7 +233,8 @@ def get_dashboard_summary(
         target_comp = None
         recommendations = []
         if latest_log:
-            comp_data = InsightsService.get_footprint_summary(latest_log)["target_comparison"]
+            summary_data = InsightsService.get_footprint_summary(latest_log)
+            comp_data = summary_data["target_comparison"]
             target_comp = TargetComparison(
                 target=comp_data["target"],
                 difference=comp_data["difference"],
@@ -257,7 +247,7 @@ def get_dashboard_summary(
                     priority=r["priority"],
                     tip=r["tip"],
                     action_type=r["action_type"]
-                ) for r in InsightsService.generate_recommendations(latest_log)
+                ) for r in InsightsService.generate_recommendations(latest_log, summary=summary_data)
             ]
 
         # Prepare historical series for chart plotting (older logs first)

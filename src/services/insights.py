@@ -63,11 +63,12 @@ class InsightsService:
         }
 
     @classmethod
-    def generate_recommendations(cls, log: CarbonLog) -> List[Dict[str, str]]:
+    def generate_recommendations(cls, log: CarbonLog, summary: Optional[Dict[str, Any]] = None) -> List[Dict[str, str]]:
         """
         Generates targeted reduction advice based on which categories dominate the user's footprint.
         """
-        summary = cls.get_footprint_summary(log)
+        if summary is None:
+            summary = cls.get_footprint_summary(log)
         breakdown = summary["breakdown"]
         recommendations = []
 

@@ -4,7 +4,7 @@ Ensures strong typing and data integrity.
 """
 from typing import List, Dict, Any, Optional
 from datetime import datetime, date
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 
 
 # --- Authentication Schemas ---
@@ -79,8 +79,7 @@ class CarbonCalculationResponse(BaseModel):
     water_details: Dict[str, Any]
     waste_details: Dict[str, Any]
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # --- Sustainable Action Tracker Schemas ---
@@ -114,8 +113,7 @@ class ActionLogResponse(BaseModel):
     emissions_reduced: float
     logged_date: date
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # --- Dashboard Analytics Schemas ---
