@@ -1,0 +1,23 @@
+# Python compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+ENV/
+env/
+.env
+
+# SQLite local databases
+*.sqlite3
+*.db
+
+# System files
+.DS_Store
+
+# IDE configuration
+.vscode/
+.idea/

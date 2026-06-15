@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Paryavaran - Carbon Footprint Tracker</title>
+  <meta name="description" content="Understand, track, and reduce your carbon footprint with simple actions, personalized analytics, and gamified achievements.">
+  <link rel="stylesheet" href="css/styles.css">
+  <!-- Chart.js CDN for Analytics Visualization -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+</head>
+<body data-theme="light">
+
+  <!-- Accessible Skip Link -->
+  <a href="#main-content" class="skip-link">Skip to Main Content</a>
+
+  <div class="app-container">
+    <!-- Header Navigation -->
+    <header role="banner">
+      <div class="nav-wrapper">
+        <a href="#" class="logo" id="logo-link" aria-label="Paryavaran Home">
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 3.5 1 8a7 7 0 0 1-9 10Z"/>
+            <path d="M9 22a1 1 0 0 1-1-1v-2.5a1 1 0 0 1 1-1H11"/>
+          </svg>
+          <span>Paryavaran</span>
+        </a>
+
+        <!-- Logged In Navigation -->
+        <nav role="navigation" aria-label="Main navigation" id="nav-bar" style="display: none;">
+          <ul class="main-nav">
+            <li><a href="#" class="nav-link active" data-view="dashboard" id="nav-dashboard">Dashboard</a></li>
+            <li><a href="#" class="nav-link" data-view="calculator" id="nav-calculator">Calculator</a></li>
+            <li><a href="#" class="nav-link" data-view="tracker" id="nav-tracker">Action Tracker</a></li>
+            <li><a href="#" class="nav-link" data-view="analytics" id="nav-analytics">Analytics</a></li>
+            <li><a href="#" class="nav-link" data-view="badges" id="nav-badges">Badges</a></li>
+          </ul>
+        </nav>
+
+        <div class="nav-actions">
+          <!-- User Stats Quick Widget -->
+          <div class="nav-user-info" id="nav-user-widget" style="display: none;">
+            <div class="nav-streak" title="Active Daily Streak" aria-label="Active Daily Streak">
+              <span aria-hidden="true">🔥</span> <span id="widget-streak">0</span> days
+            </div>
+            <div class="nav-points" aria-label="Total Green Points">
+              <span id="widget-points">0</span> GP
+            </div>
+            <button class="btn btn-secondary" id="btn-logout" aria-label="Log Out">Logout</button>
+          </div>
+
+          <!-- Theme Toggle Button -->
+          <button class="btn-toggle-theme" id="btn-theme-toggle" aria-label="Toggle Dark/Light Mode">
+            <svg aria-hidden="true" viewBox="0 0 24 24" id="theme-icon">
+              <!-- Sun Icon -->
+              <path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m11.314 11.314l.707.707M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main id="main-content" role="main" tabindex="-1">
+      
+      <!-- Accessibility Live Region for Screen Readers -->
+      <div id="accessibility-announcer" class="sr-only" aria-live="polite"></div>
+
+      <!-- VIEW 1: LANDING & AUTHENTICATION -->
+      <section id="view-landing" class="view-section active">
+        <div class="hero-section">
+          <h1>Paryavaran Carbon Tracker</h1>
+          <p>Help fight climate change by tracking, understanding, and reducing your personal carbon footprint. Log daily positive habits and unlock rewards!</p>
+          <a href="#auth-card" class="btn btn-primary" id="hero-cta" aria-label="Get Started and sign up">Get Started</a>
+        </div>
+
+        <div class="auth-container card" id="auth-card">
+          <div class="auth-tabs">
+            <button class="auth-tab active" id="tab-login" aria-selected="true" role="tab">Login</button>
+            <button class="auth-tab" id="tab-register" aria-selected="false" role="tab">Register</button>
+          </div>
+
+          <!-- Login Form -->
+          <form id="form-login" aria-label="Login Form">
+            <div class="form-group">
+              <label for="login-username">Username</label>
+              <input type="text" id="login-username" class="form-control" required autocomplete="username" minlength="3">
+            </div>
+            <div class="form-group">
+              <label for="login-password">Password</label>
+              <input type="password" id="login-password" class="form-control" required autocomplete="current-password" minlength="6">
+            </div>
+            <div id="login-error" class="form-group" style="color: var(--danger); display: none; font-weight: 500;" aria-live="assertive"></div>
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Access Account</button>
+          </form>
+
+          <!-- Register Form (Hidden by default) -->
+          <form id="form-register" aria-label="Registration Form" style="display: none;">
+            <div class="form-group">
+              <label for="register-username">Choose Username</label>
+              <input type="text" id="register-username" class="form-control" required autocomplete="username" minlength="3" aria-describedby="username-hint">
+              <small id="username-hint" style="color: var(--text-muted); font-size: 0.8rem;">Only letters, numbers, hyphens, and underscores allowed.</small>
+            </div>
+            <div class="form-group">
+              <label for="register-password">Create Password</label>
+              <input type="password" id="register-password" class="form-control" required autocomplete="new-password" minlength="6" aria-describedby="password-hint">
+              <small id="password-hint" style="color: var(--text-muted); font-size: 0.8rem;">Must be at least 6 characters long.</small>
+            </div>
+            <div id="register-error" class="form-group" style="color: var(--danger); display: none; font-weight: 500;" aria-live="assertive"></div>
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Create Account</button>
+          </form>
+        </div>
+      </section>
+
+      <!-- VIEW 2: USER DASHBOARD -->
+      <section id="view-dashboard" class="view-section">
+        <div class="dashboard-title">
+          <h2>Welcome back, <span id="dash-username">User</span>!</h2>
+          <button class="btn btn-primary" id="btn-quick-calc" aria-label="New Footprint Calculation">New Calculation</button>
+        </div>
+
+        <!-- Metric Scoreboard cards -->
+        <div class="card-grid">
+          <div class="card stat-card">
+            <h3 class="stat-desc">Your Monthly Footprint</h3>
+            <div class="stat-value"><span id="dash-footprint-val">0.0</span> <span style="font-size: 1.2rem;">kg CO2</span></div>
+            <p class="stat-desc" id="dash-footprint-target-comparison">No calculations logged yet.</p>
+          </div>
+
+          <div class="card stat-card">
+            <h3 class="stat-desc">Green Points (GP)</h3>
+            <div class="stat-value" id="dash-points-val">0</div>
+            <p class="stat-desc">Complete tasks to earn points.</p>
+          </div>
+
+          <div class="card stat-card">
+            <h3 class="stat-desc">Eco Log Streak</h3>
+            <div class="stat-value"><span id="dash-streak-val">0</span> <span style="font-size: 1.2rem;">days</span></div>
+            <p class="stat-desc" id="dash-streak-sub">Keep logging sustainable habits!</p>
+          </div>
+        </div>
+
+        <div class="card-grid" style="margin-top: 2rem;">
+          <!-- Action Recommendations card -->
+          <div class="card" style="grid-column: span 2;">
+            <h3>Personalized Footprint Reduction Insights</h3>
+            <p style="color: var(--text-muted); margin-bottom: 1rem;">Based on your highest emission categories from your latest calculation.</p>
+            <div class="recommendation-list" id="dashboard-insights-list">
+              <p>Complete a Carbon Footprint calculation first to receive custom optimization insights.</p>
+            </div>
+          </div>
+
+          <!-- Badges Snapshot card -->
+          <div class="card">
+            <h3>Recent Badges</h3>
+            <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Sustainability milestones achieved.</p>
+            <div id="dashboard-badges-snapshot" style="display: flex; gap: 1rem; flex-wrap: wrap;">
+              <p>No badges unlocked yet.</p>
+            </div>
+            <button class="btn btn-secondary" style="width: 100%; margin-top: 1.5rem;" id="btn-view-all-badges" aria-label="View all eco badges">View All Badges</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 3: CARBON FOOTPRINT CALCULATOR -->
+      <section id="view-calculator" class="view-section">
+        <h2>Carbon Footprint Calculator</h2>
+        <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Estimate your carbon emissions over the past month. Input details for transportation, electricity, food, water, and waste.</p>
+
+        <div class="calculator-wizard card">
+          <!-- Step Indicator -->
+          <div class="step-indicator" role="tablist">
+            <div class="step-dot active" id="dot-step-1" role="tab" aria-selected="true" aria-label="Step 1: Transportation">1</div>
+            <div class="step-dot" id="dot-step-2" role="tab" aria-selected="false" aria-label="Step 2: Utility Consumption">2</div>
+            <div class="step-dot" id="dot-step-3" role="tab" aria-selected="false" aria-label="Step 3: Food and Waste">3</div>
+          </div>
+
+          <form id="form-calculator" aria-label="Carbon Calculator Form">
+            
+            <!-- Step 1: Transport -->
+            <div class="step-container active" id="step-1" role="tabpanel" aria-labelledby="dot-step-1">
+              <h3 style="margin-bottom: 1.5rem;">Step 1: Transportation</h3>
+              
+              <div class="form-group">
+                <label for="calc-vehicle-type">Primary Mode of Transport</label>
+                <select id="calc-vehicle-type" class="form-control">
+                  <option value="petrol_car">Petrol Car</option>
+                  <option value="diesel_car">Diesel Car</option>
+                  <option value="electric_car">Electric Vehicle (EV)</option>
+                  <option value="motorbike">Motorcycle/Scooter</option>
+                  <option value="public_transit">Public Bus/Train</option>
+                  <option value="bicycle_or_walk">Bicycle or Walking</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="calc-distance">Estimated Distance Traveled this Month (km)</label>
+                <input type="number" id="calc-distance" class="form-control" min="0" step="any" value="0">
+              </div>
+            </div>
+
+            <!-- Step 2: Energy & Utilities -->
+            <div class="step-container" id="step-2" role="tabpanel" aria-labelledby="dot-step-2">
+              <h3 style="margin-bottom: 1.5rem;">Step 2: Utilities Consumption</h3>
+              
+              <div class="form-group">
+                <label for="calc-electricity">Household Electricity Consumption (kWh)</label>
+                <input type="number" id="calc-electricity" class="form-control" min="0" step="any" value="0" aria-describedby="electricity-desc">
+                <small id="electricity-desc" class="text-muted">Tip: Look at your monthly utility bill for exact kWh usage.</small>
+              </div>
+
+              <div class="form-group">
+                <label for="calc-water">Household Water Consumption (Liters)</label>
+                <input type="number" id="calc-water" class="form-control" min="0" step="any" value="0" aria-describedby="water-desc">
+                <small id="water-desc" class="text-muted">Estimate roughly (average personal use is ~3000 to 5000 Liters/month).</small>
+              </div>
+            </div>
+
+            <!-- Step 3: Food & Waste -->
+            <div class="step-container" id="step-3" role="tabpanel" aria-labelledby="dot-step-3">
+              <h3 style="margin-bottom: 1.5rem;">Step 3: Food Habits & Waste</h3>
+
+              <div class="form-group">
+                <label for="calc-diet-type">Dietary Profile</label>
+                <select id="calc-diet-type" class="form-control">
+                  <option value="heavy_meat">Heavy Meat Eater (Daily beef/pork/chicken)</option>
+                  <option value="flexitarian">Flexitarian (Minimal meat/mainly poultry/fish)</option>
+                  <option value="vegetarian">Vegetarian (No meat, consumes dairy/eggs)</option>
+                  <option value="vegan">Vegan (Strictly plant-based)</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="calc-diet-days">Number of Days Adhered to this Diet in past month</label>
+                <input type="number" id="calc-diet-days" class="form-control" min="0" max="31" value="30">
+              </div>
+
+              <div class="form-group">
+                <label for="calc-waste">Municipal Waste Generated (kg)</label>
+                <input type="number" id="calc-waste" class="form-control" min="0" step="any" value="0">
+              </div>
+
+              <div class="form-group" style="display: flex; align-items: center; gap: 0.5rem; margin-top: 1.5rem;">
+                <input type="checkbox" id="calc-compost" style="width: 20px; height: 20px;">
+                <label for="calc-compost" style="margin-bottom: 0; cursor: pointer;">I actively compost organic waste / recycle items (50% waste emission reduction)</label>
+              </div>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="step-actions">
+              <button type="button" class="btn btn-secondary" id="btn-calc-prev" style="visibility: hidden;">Previous</button>
+              <button type="button" class="btn btn-primary" id="btn-calc-next">Next</button>
+              <button type="submit" class="btn btn-primary" id="btn-calc-submit" style="display: none;">Calculate Footprint</button>
+            </div>
+
+          </form>
+        </div>
+
+        <!-- Calculation Result Success Overlay Card -->
+        <div id="calculator-result-card" class="card" style="max-width: 600px; margin: 2rem auto; display: none; border-color: var(--success);" aria-live="polite">
+          <h3 style="color: var(--primary-leaf); margin-bottom: 1rem;">Calculation Successful!</h3>
+          <p>You have earned <strong style="color: var(--success);"><span id="result-points-earned">0</span> Green Points</strong>.</p>
+          <div style="margin: 1.5rem 0; padding: 1rem; background: var(--bg-app); border-radius: var(--radius-sm);">
+            <p><strong>Total Calculated Emissions:</strong> <span id="result-total-emissions">0.0</span> kg CO2e</p>
+            <ul style="margin-left: 1.5rem; margin-top: 0.5rem; font-size: 0.95rem; list-style-type: circle;">
+              <li>Transport: <span id="result-transport-emissions">0.0</span> kg CO2e</li>
+              <li>Electricity: <span id="result-electricity-emissions">0.0</span> kg CO2e</li>
+              <li>Food: <span id="result-food-emissions">0.0</span> kg CO2e</li>
+              <li>Water: <span id="result-water-emissions">0.0</span> kg CO2e</li>
+              <li>Waste: <span id="result-waste-emissions">0.0</span> kg CO2e</li>
+            </ul>
+          </div>
+          <div id="result-badges-unlocked" style="margin-bottom: 1.5rem; font-weight: 600; color: var(--accent-mint); display: none;"></div>
+          <button class="btn btn-primary" id="btn-result-close" style="width: 100%;">View Dashboard Insights</button>
+        </div>
+      </section>
+
+      <!-- VIEW 4: ACTION TRACKER -->
+      <section id="view-tracker" class="view-section">
+        <h2>Sustainable Action Tracker</h2>
+        <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Log daily sustainable habits you completed today. Completing consecutive daily activities keeps your Eco Streak alive and awards bonus multipliers!</p>
+
+        <div class="card-grid">
+          <!-- Log Actions checklist -->
+          <div class="card" style="grid-column: span 2;">
+            <h3>Log Daily Sustainable Actions</h3>
+            <div class="action-list" id="action-list-container" style="margin-top: 1.5rem;">
+              
+              <!-- Travel Action -->
+              <div class="action-row">
+                <div class="action-info">
+                  <h4>Bicycle Commute</h4>
+                  <p>Ride a bicycle or walk instead of taking a private car. Saved ~3 kg CO2 per trip.</p>
+                </div>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                  <span class="action-badge">+30 GP</span>
+                  <button class="btn btn-primary btn-log-action" data-action="commute_bicycle" aria-label="Log Bicycle Commute">Log Habit</button>
+                </div>
+              </div>
+
+              <!-- Transit Action -->
+              <div class="action-row">
+                <div class="action-info">
+                  <h4>Take Public Transit</h4>
+                  <p>Choose public bus or metro rail for commute. Saved ~2 kg CO2 per trip.</p>
+                </div>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                  <span class="action-badge">+20 GP</span>
+                  <button class="btn btn-primary btn-log-action" data-action="commute_public_transit" aria-label="Log Public Transit Commute">Log Habit</button>
+                </div>
+              </div>
+
+              <!-- Vegan Diet Action -->
+              <div class="action-row">
+                <div class="action-info">
+                  <h4>Vegan Diet Day</h4>
+                  <p>Eat 100% plant-based meals. Avoid all dairy, meats, and eggs. Saved ~2.5 kg CO2.</p>
+                </div>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                  <span class="action-badge">+25 GP</span>
+                  <button class="btn btn-primary btn-log-action" data-action="eat_vegan" aria-label="Log Vegan Diet Day">Log Habit</button>
+                </div>
+              </div>
+
+              <!-- Vegetarian Diet Action -->
+              <div class="action-row">
+                <div class="action-info">
+                  <h4>Vegetarian Diet Day</h4>
+                  <p>Avoid red meat, poultry, and seafood for all meals. Saved ~1.5 kg CO2.</p>
+                </div>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                  <span class="action-badge">+15 GP</span>
+                  <button class="btn btn-primary btn-log-action" data-action="eat_vegetarian" aria-label="Log Vegetarian Diet Day">Log Habit</button>
+                </div>
+              </div>
+
+              <!-- Standby power Action -->
+              <div class="action-row">
+                <div class="action-info">
+                  <h4>Unplug Standby Appliances</h4>
+                  <p>Shut down chargers and TV setups completely at the socket when not in use. Saved ~0.5 kg CO2.</p>
+                </div>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                  <span class="action-badge">+15 GP</span>
+                  <button class="btn btn-primary btn-log-action" data-action="unplug_appliances" aria-label="Log Unplugging Appliances">Log Habit</button>
+                </div>
+              </div>
+
+              <!-- Composting Action -->
+              <div class="action-row">
+                <div class="action-info">
+                  <h4>Compost Organic Waste</h4>
+                  <p>Divert wet food scraps from landfills to compost bins. Saved ~0.8 kg CO2.</p>
+                </div>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                  <span class="action-badge">+20 GP</span>
+                  <button class="btn btn-primary btn-log-action" data-action="compost_organic" aria-label="Log Composting Organic Waste">Log Habit</button>
+                </div>
+              </div>
+
+              <!-- Recycling Action -->
+              <div class="action-row">
+                <div class="action-info">
+                  <h4>Recycle Metals/Plastics</h4>
+                  <p>Ensure clean separation of packaging for paper/metal/glass recyclables. Saved ~0.4 kg CO2.</p>
+                </div>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                  <span class="action-badge">+10 GP</span>
+                  <button class="btn btn-primary btn-log-action" data-action="recycle_items" aria-label="Log Recycling items">Log Habit</button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- History list of logs -->
+          <div class="card">
+            <h3>Recent Habit Log History</h3>
+            <p style="color: var(--text-muted); margin-bottom: 1.5rem;">List of sustainable actions logged in the past days.</p>
+            <div id="habit-history-container" style="display: flex; flex-direction: column; gap: 0.75rem;">
+              <p>No actions logged yet.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 5: ANALYTICS & VISUALIZATION -->
+      <section id="view-analytics" class="view-section">
+        <h2>Impact Visualization & Analytics</h2>
+        <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Track historical changes, breakdown per category, and compare your score against targets defined by the Paris Climate Agreement.</p>
+
+        <div class="card-grid">
+          <!-- Footprint Trends chart -->
+          <div class="card" style="grid-column: span 2;">
+            <h3>Emissions Progression (Historical Timeline)</h3>
+            <div class="chart-container">
+              <canvas id="chart-trends" aria-label="Line chart showing historical carbon footprint trends over time" role="img">Your browser does not support canvas-based line charts.</canvas>
+            </div>
+          </div>
+
+          <!-- Footprint breakdown doughnut -->
+          <div class="card">
+            <h3>Latest Footprint Composition</h3>
+            <div class="chart-container">
+              <canvas id="chart-composition" aria-label="Doughnut chart illustrating category breakdown of your carbon emissions" role="img">Your browser does not support canvas-based breakdown charts.</canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top: 2rem;">
+          <h3>Target Validation (vs. Climate Agreements)</h3>
+          <p style="color: var(--text-muted); margin-bottom: 1rem;">According to the Paris Climate Agreement, the maximum sustainable carbon footprint per capita is **2,000 kg CO2 (2 metric tons) per year**, which equals **166.7 kg CO2 per month**.</p>
+          
+          <table class="comparison-table" aria-label="Emissions Comparison against Climate Targets">
+            <thead>
+              <tr>
+                <th scope="col">Emission Metric</th>
+                <th scope="col">Your Score</th>
+                <th scope="col">Sustainable Target</th>
+                <th scope="col">Status Difference</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Monthly Footprint</td>
+                <td><span id="table-user-emissions">0.0</span> kg CO2</td>
+                <td>166.7 kg CO2</td>
+                <td><span id="table-user-comp" style="font-weight: 600;">No calculations logged</span></td>
+              </tr>
+              <tr>
+                <td>Annual Equivalent</td>
+                <td><span id="table-user-annual">0.0</span> kg CO2</td>
+                <td>2,000.0 kg CO2</td>
+                <td><span id="table-user-annual-comp" style="font-weight: 600;">-</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- VIEW 6: BADGES GALLERY -->
+      <section id="view-badges" class="view-section">
+        <h2>Sustainability Badges Gallery</h2>
+        <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Earn points and badges by logging calculations and sustainable actions regularly. Can you unlock them all?</p>
+
+        <div class="badges-grid">
+          
+          <!-- Badge 1: Eco Novice -->
+          <div class="badge-card" id="badge-eco_novice" aria-describedby="desc-badge-novice">
+            <div class="badge-icon" aria-hidden="true">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v19m9-19h-9m9 0a9 9 0 01-9 9m9-9H3a9 9 0 009 9"/>
+              </svg>
+            </div>
+            <h4>Eco Novice</h4>
+            <p id="desc-badge-novice" style="font-size: 0.8rem; color: var(--text-muted);">Unlocked by completing your first footprint calculation.</p>
+          </div>
+
+          <!-- Badge 2: Carbon Tracker -->
+          <div class="badge-card" id="badge-carbon_tracker" aria-describedby="desc-badge-tracker">
+            <div class="badge-icon" aria-hidden="true">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2z"/>
+              </svg>
+            </div>
+            <h4>Carbon Analyst</h4>
+            <p id="desc-badge-tracker" style="font-size: 0.8rem; color: var(--text-muted);">Completed 5 carbon footprint calculations.</p>
+          </div>
+
+          <!-- Badge 3: Commute Champion -->
+          <div class="badge-card" id="badge-commute_champion" aria-describedby="desc-badge-commute">
+            <div class="badge-icon" aria-hidden="true">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+              </svg>
+            </div>
+            <h4>Commute Champion</h4>
+            <p id="desc-badge-commute" style="font-size: 0.8rem; color: var(--text-muted);">Logged 5 sustainable travel habits (bicycle/transit).</p>
+          </div>
+
+          <!-- Badge 4: Green Chef -->
+          <div class="badge-card" id="badge-green_chef" aria-describedby="desc-badge-chef">
+            <div class="badge-icon" aria-hidden="true">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+              </svg>
+            </div>
+            <h4>Green Chef</h4>
+            <p id="desc-badge-chef" style="font-size: 0.8rem; color: var(--text-muted);">Logged 7 food habits (vegan/vegetarian meals).</p>
+          </div>
+
+          <!-- Badge 5: Waste Warrior -->
+          <div class="badge-card" id="badge-waste_warrior" aria-describedby="desc-badge-waste">
+            <div class="badge-icon" aria-hidden="true">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+              </svg>
+            </div>
+            <h4>Waste Warrior</h4>
+            <p id="desc-badge-waste" style="font-size: 0.8rem; color: var(--text-muted);">Logged 3 waste reduction habits (recycle/compost).</p>
+          </div>
+
+          <!-- Badge 6: Earth Guardian -->
+          <div class="badge-card" id="badge-earth_guardian" aria-describedby="desc-badge-guardian">
+            <div class="badge-icon" aria-hidden="true">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
+              </svg>
+            </div>
+            <h4>Earth Guardian</h4>
+            <p id="desc-badge-guardian" style="font-size: 0.8rem; color: var(--text-muted);">Reach a total threshold of 1000 Green Points.</p>
+          </div>
+
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Footer Area -->
+    <footer role="contentinfo">
+      <p>&copy; 2026 Paryavaran Carbon Footprint Tracker. Built with care for our ecosystem.</p>
+      <p style="font-size: 0.8rem; margin-top: 0.5rem; color: var(--text-muted);">Complying with WCAG AA Accessibility guidelines & secure API patterns.</p>
+    </footer>
+  </div>
+
+  <!-- Main JavaScript File -->
+  <script src="js/app.js" defer></script>
+</body>
+</html>
