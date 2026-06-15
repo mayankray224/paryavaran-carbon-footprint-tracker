@@ -52,5 +52,7 @@ app.mount("/", StaticFiles(directory=public_dir, html=True), name="public")
 
 
 if __name__ == "__main__":
-    # Start the server on port 8000
-    uvicorn.run("run:app", host="0.0.0.0", port=8000, reload=True)
+    # Start the server on dynamic port or default to 8000
+    port = int(os.environ.get("PORT", 8000))
+    is_dev = os.environ.get("ENV", "development") == "development"
+    uvicorn.run("run:app", host="0.0.0.0", port=port, reload=is_dev)
