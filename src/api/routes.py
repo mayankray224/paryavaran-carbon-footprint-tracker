@@ -90,10 +90,15 @@ def login(credentials: UserLogin, db: Session = Depends(get_db)) -> Dict[str, st
     """
     success, message, data = AuthService.authenticate_user(db, credentials.username, credentials.password)
     if not success:
+        if message == "Incorrect username or password":
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail=message,
+                headers={"WWW-Authenticate": "Bearer"},
+            )
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=message,
-            headers={"WWW-Authenticate": "Bearer"},
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=message
         )
     return data
 

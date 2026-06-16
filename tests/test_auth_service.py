@@ -60,3 +60,17 @@ def test_auth_service_authenticate_non_existent(db_session: Session):
     assert success is False
     assert message == "Incorrect username or password"
     assert data == {}
+
+
+def test_auth_service_register_exception():
+    success, message, data = AuthService.register_user(None, "panicuser", "password123")
+    assert success is False
+    assert message == "Failed to register user due to an internal server error"
+    assert data == {}
+
+
+def test_auth_service_authenticate_exception():
+    success, message, data = AuthService.authenticate_user(None, "loginuser", "mypassword")
+    assert success is False
+    assert message == "Failed to authenticate user due to an internal server error"
+    assert data == {}
